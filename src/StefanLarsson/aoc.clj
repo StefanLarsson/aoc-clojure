@@ -232,26 +232,50 @@ absdiffs
 ; No detection of infinite loops!
 
 
-(defn next-state [[x y] dir lines]
+(defn next-state [[x y] dir lines on-board? is-free?]
   (let [try-pos (next-position [x y] dir)]
     (cond
-      (not (on-board?  try-pos lines)) (vector try-pos dir lines)
-      (is-free? try-pos lines)  (vector  try-pos dir lines)
-      :else (recur [x y] (next-dir dir) lines)
+      (not (on-board?  try-pos )) (vector try-pos dir lines)
+      (is-free? try-pos)  (vector  try-pos dir lines)
+      :else (recur [x y] (next-dir dir) lines on-board? is-free?)
   )))
 
 (defn calculate-visited-positions [[x y] dir lines]
+  (let [h (count lines)
+    w (count (lines 0))
+    on-board? (fn [[x y]] (and (< -1 x w) (< -1 y  h) ))
+    is-free?  (fn [[x y]] (not (= \# (.charAt (lines y) x))))]
   (loop [[x y] [x y] dir dir visited #{}]
-    (let [stepped (next-state [x y] dir lines)]
-    (if (not (on-board? (stepped 0) lines)) (conj  visited [x y])
-      (recur (stepped 0) (stepped 1) (conj visited [x y]))))))
+    (let [stepped (next-state [x y] dir lines on-board? is-free?)]
+    (if (not (on-board? (stepped 0) )) (conj  visited [x y])
+      (recur (stepped 0) (stepped 1) (conj visited [x y])))))))
 
 (defn day6_1 []
   (let [
     lines (file-to-lines "resources/day6.txt")
     initial-position (find-guard-position lines)]
-    (next-position initial-position :up)
     (count  (calculate-visited-positions initial-position :up lines))
+  ))
+
+(defn is-cyclic? [[x y] dir lines [xo yo]]
+  (let [
+    h (count lines)
+    w (count (lines 0))
+    on-board? (fn [[x y]] (and (< -1 x w) (< -1 y h)))]
+
+
+  (loop [[x y] [x y] dir dir seen-states #{}]
+    (let [stepped (next-state [x y] dir lines)]
+      (cond
+        (not ( on-board? (stepped 0) )) false
+        (contains? seen-states stepped) true
+        :else (recur (stepped 0) (stepped 1) (conj seen-states [[x y] dir])))))))
+ 
+(defn day6_2 []
+  (let [
+    lines (file-to-lines "resources/example_day6.txt")
+    initial-position (find-guard-position lines)]
+    (is-cyclic? initial-position :up lines)
   ))
 
 (defn all
@@ -266,6 +290,7 @@ absdiffs
     (println (day4_1))
     (println (day4_2))
     (println (day6_1))
+    (println (day6_2))
 ))
 
 
