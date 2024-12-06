@@ -233,12 +233,14 @@ absdiffs
 
 
 (defn next-state [[x y] dir lines on-board? is-free?]
+  (loop [ [x y] [x y] dir dir]
+
   (let [try-pos (next-position [x y] dir)]
     (cond
-      (not (on-board?  try-pos )) (vector try-pos dir lines)
-      (is-free? try-pos)  (vector  try-pos dir lines)
-      :else (recur [x y] (next-dir dir) lines on-board? is-free?)
-  )))
+      (not (on-board?  try-pos )) (vector try-pos dir )
+      (is-free? try-pos)  (vector  try-pos dir )
+      :else (recur [x y] (next-dir dir) )
+  ))))
 
 (defn calculate-visited-positions [[x y] dir lines]
   (let [h (count lines)
