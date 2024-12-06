@@ -206,15 +206,17 @@ absdiffs
   "Find the position of the guard. Returns vector of x and y coordinates"
   (first  (keep-indexed guard-coordinate-if-found lines )))
 
-(defn is-free [x y lines]
-  (not (= \# (.charAt x) (lines y))))
+(defn is-free? [[x y] lines]
+  ;(println "CCC"  x y lines)
+  ;(println (.charAt (lines y )x))
+  (not (= \# (.charAt ( lines y) x))))
 
-(defn on-board [ x y lines]
+(defn on-board? [[x y] lines]
   (and 
-    (<= 0 x (count (lines 0)))
-    (<= 0 y (count lines))))
+    (< -1 x (count (lines 0)))
+    (< -1 y (count lines))))
 
-(defn next-position [x y dir]
+(defn next-position [[ x y] dir]
   (cond (= dir :up ) (vector x (dec y))
         (= dir :down ) (vector x (inc y))
         (= dir :left ) (vector (dec x) y)
@@ -227,13 +229,29 @@ absdiffs
     :down :left
     :left :up))
 
-(defn step-off-position [x y lines]
-  )
+; No detection of infinite loops!
+
+
+(defn next-state [[x y] dir lines]
+  (let [try-pos (next-position [x y] dir)]
+    (cond
+      (not (on-board?  try-pos lines)) (vector try-pos dir lines)
+      (is-free? try-pos lines)  (vector  try-pos dir lines)
+      :else (recur [x y] (next-dir dir) lines)
+  )))
+
+(defn calculate-visited-positions [[x y] dir lines]
+  (loop [[x y] [x y] dir dir visited #{}]
+    (let [stepped (next-state [x y] dir lines)]
+    (if (not (on-board? (stepped 0) lines)) (conj  visited [x y])
+      (recur (stepped 0) (stepped 1) (conj visited [x y]))))))
 
 (defn day6_1 []
   (let [
-    lines (file-to-lines "resources/example_day6.txt")]
-    (find-guard-position lines)
+    lines (file-to-lines "resources/day6.txt")
+    initial-position (find-guard-position lines)]
+    (next-position initial-position :up)
+    (count  (calculate-visited-positions initial-position :up lines))
   ))
 
 (defn all
