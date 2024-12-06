@@ -232,7 +232,7 @@ absdiffs
 ; No detection of infinite loops!
 
 
-(defn next-state [[x y] dir lines on-board? is-free?]
+(defn next-state [[x y] dir on-board? is-free?]
   (loop [ [x y] [x y] dir dir]
 
   (let [try-pos (next-position [x y] dir)]
@@ -248,7 +248,7 @@ absdiffs
     on-board? (fn [[x y]] (and (< -1 x w) (< -1 y  h) ))
     is-free?  (fn [[x y]] (not (= \# (.charAt (lines y) x))))]
   (loop [[x y] [x y] dir dir visited #{}]
-    (let [stepped (next-state [x y] dir lines on-board? is-free?)]
+    (let [stepped (next-state [x y] dir on-board? is-free?)]
     (if (not (on-board? (stepped 0) )) (conj  visited [x y])
       (recur (stepped 0) (stepped 1) (conj visited [x y])))))))
 
@@ -263,11 +263,10 @@ absdiffs
   (let [
     h (count lines)
     w (count (lines 0))
-    on-board? (fn [[x y]] (and (< -1 x w) (< -1 y h)))]
-
-
+    on-board? (fn [[x y]] (and (< -1 x w) (< -1 y h)))
+    is-free? (fn [[x y]] (and (not (= \# (.charAt (lines y) x))) (not (= [x y] [xo yo]))))]
   (loop [[x y] [x y] dir dir seen-states #{}]
-    (let [stepped (next-state [x y] dir lines)]
+    (let [stepped (next-state [x y] dir on-board? is-free?)]
       (cond
         (not ( on-board? (stepped 0) )) false
         (contains? seen-states stepped) true
@@ -277,7 +276,7 @@ absdiffs
   (let [
     lines (file-to-lines "resources/example_day6.txt")
     initial-position (find-guard-position lines)]
-    (is-cyclic? initial-position :up lines)
+    (is-cyclic? initial-position :up lines [3 6])
   ))
 
 (defn all
