@@ -155,17 +155,87 @@ absdiffs
     side (count lines)
     all-strings (map #(string-from-positions % lines) (all-lines side)) ; just assume square for now
     all-matches (map #(re-seq #"(?=(XMAS|SAMX))" %) all-strings)]
-    ;(vertical-at-pos 4 side)
-    ;(diagonal-down-right-at-pos 4 side)
-    ;(diagonal-down-left-at-pos 144 side)
-    ;(horizontal-at-pos 144 side)
-    ;(all-lines 3)
-    ;(char-at-pos 0 0 lines)
-    ;(string-from-positions '([0 0] [0 1]) lines)
-    ;(map #(string-from-positions % lines) (all-lines side))
-    ;(count  all-matches)
     (apply +  (map #(count (re-seq #"(?=(XMAS|SAMX))" %) ) all-strings))
 ))
+
+(defn internal-positions [side]
+  (for [i (range 1 (- side 1))
+        j (range 1 (- side 1))]
+      (vector i j)))
+
+(defn is-center-MS2 [ x y ss]
+  (and 
+  (or 
+    (and  (= \M (char-at-pos (- x 1) (- y 1) ss)) (= \S (char-at-pos (+ x 1) (+ y 1) ss)  ))
+    (and  (= \S (char-at-pos (- x 1) (- y 1) ss)) (= \M (char-at-pos (+ x 1) (+ y 1) ss)  )))
+  (or 
+    (and  (= \M (char-at-pos (- x 1) (+ y 1) ss)) (= \S (char-at-pos (+ x 1) (- y 1) ss)  ))
+    (and  (= \S (char-at-pos (- x 1) (+ y 1) ss)) (= \M (char-at-pos (+ x 1) (- y 1) ss)  )))))
+
+(defn is-center-MS [x y ss]
+  (and
+    (or
+      (and (= \M (char-at-pos (- x 1) (- y 1) ss) (= \S (char-at-pos (+ 1 x) (+ 1 y) ss))))
+      (and (= \S (char-at-pos (- x 1) (- y 1) ss) (= \M (char-at-pos (+ 1 x) (+ 1 y) ss))))
+    )
+    ;(or
+    ;  (and (= \M (char-at-pos (- x 1) (+ y 1) ss) (= \S (char-at-pos (+ 1 x) (- 1 y) ss))))
+    ;  (and (= \S (char-at-pos (- x 1) (+ y 1) ss) (= \M (char-at-pos (+ 1 x) (- 1 y) ss))))
+    ;i)
+))
+;; Find X-MAS:
+;; The X-MASes correspond to the A:s in their centres.
+;; We can find all the positions of A:s
+;; And then verify they are center's om MAS in both diagonals
+(defn day4_2 [] 
+  (let [
+    lines ( file-to-lines "resources/day4.txt")
+    side (count lines)
+    a-positions (filter #(= \A ( char-at-pos ( % 0) (% 1) lines)) ( internal-positions side))]
+    (count  (filter #(is-center-MS2 (% 0) (% 1) lines) a-positions))
+    ;a-positions
+))
+
+; guard position is marked by ^ (we assume he is pointing north always)
+(defn guard-coordinate-if-found [index line]
+  (let [p (string/index-of line "^")]
+    (if p (vector p index)
+      nil)))
+
+(defn find-guard-position [lines]
+  "Find the position of the guard. Returns vector of x and y coordinates"
+  (first  (keep-indexed guard-coordinate-if-found lines )))
+
+(defn is-free [x y lines]
+  (not (= \# (.charAt x) (lines y))))
+
+(defn on-board [ x y lines]
+  (and 
+    (<= 0 x (count (lines 0)))
+    (<= 0 y (count lines))))
+
+(defn next-position [x y dir]
+  (cond (= dir :up ) (vector x (dec y))
+        (= dir :down ) (vector x (inc y))
+        (= dir :left ) (vector (dec x) y)
+        (= dir :right) (vector (inc x) y)))
+
+(defn next-dir [dir]
+  (case dir
+    :up :right
+    :right :down
+    :down :left
+    :left :up))
+
+(defn step-off-position [x y lines]
+  )
+
+(defn day6_1 []
+  (let [
+    lines (file-to-lines "resources/example_day6.txt")]
+    (find-guard-position lines)
+  ))
+
 (defn all
   "Do all the things we have solutions for"
   []
@@ -176,6 +246,8 @@ absdiffs
     (println (day3_1))
     (println (day3_2))
     (println (day4_1))
+    (println (day4_2))
+    (println (day6_1))
 ))
 
 
