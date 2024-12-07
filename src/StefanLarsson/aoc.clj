@@ -314,21 +314,54 @@ absdiffs
 
         
 (defn calibration-equation-solvable? [[ test-value operands]]
-  (xxx test-value 0 operands)
+  (xxx test-value (first operands) (rest  operands))
   
   
   )
+(defn yyy [test-value acc operands used-operators]
+  (println  acc operands used-operators)
+  (cond (empty? operands) (if  (= test-value acc) used-operators)
+        :else (or (yyy test-value (+ acc (first operands)) (rest operands) (conj used-operators "+"))
+            (yyy test-value (* acc (first operands)) (rest operands) (conj used-operators "*")))))
+
+        
+(defn calibration-equation-solution [[ test-value operands]]
+  (yyy test-value 0 operands [])
+  
+  
+  )
+; I get the sum 16931 included
+; Which line is this and why should it not be there and why do I get it?
+
+; 16931: 568 2 9 16 529 1 8 1 3 8
+; [* + + * + * * + * +]
+; 568 * 2 = 1136
+; 1136 + 2 = 1138
+; 1138 + 9 = 1145
+; output of purported solution::q
+
+; 16931 () [* + + * + * * + * +]
+; [* + + * + * * + * +]
+
+
 (defn day7_1 []
   (let [
     ;lines (file-to-lines "resources/example_day7.txt")
     lines (file-to-lines "resources/day7.txt")
     equations (map parse-calibration-equation lines)
-    
+    x (filter calibration-equation-solvable? equations) 
       ]
-  (println (count lines) " lines.")
-  (println "Max # of operands: "  (apply max  (map #(count (% 1) ) equations)))
-  (println "Min # of operands: "  (apply min  (map #(count (% 1) ) equations)))
-  (println    (filter calibration-equation-solvable? equations))
+  ;(println ( calibration-equation-solution [16931 [ 568 2 9 16 529 1 8 1 3 8]]))
+  ;(println (count lines) " lines.")
+  ;(println "Max # of operands: "  (apply max  (map #(count (% 1) ) equations)))
+  ;(println "Min # of operands: "  (apply min  (map #(count (% 1) ) equations)))
+  ;(println    (filter calibration-equation-solvable? equations))
+  ;(println (map #(% 0)   (filter calibration-equation-solvable? equations)))
+  ;(for [[result operands] (filter calibration-equation-solvable? equations)]
+  ;  (do  (println result)))
+
+  ;(println (reduce #(str %1 "\n" %2)   (map #(str (% 0)) x)))
+
   (apply +  (map #(% 0) (filter calibration-equation-solvable? equations)))
   
 ))
