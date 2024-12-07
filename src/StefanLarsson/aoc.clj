@@ -290,32 +290,49 @@ absdiffs
 ;; evaluated left-to-right! (no precedence)
 ;; 3 + 4 * 5 = 17
 ;; lets start with silly recursion!
-;(defn can_be_satisfied? [result [operands] ]
-;  (let [  silly (fn  [acc remaining-operands] (
-;    (cond ( = result acc ) true
-;          ( > result acc ) false
-;          (empty? remaining-operands) false
-;          :else (let [next-operand (first remaining-operands) ]
-;             ( or (silly (+ acc next-operand) (rest remaining-operands))
-;                  (silly (* acc next-operand) (rest remaining-operands)))))))]
-;  (silly 0 operands)))
-(defn fib [i]
-  (println "fiboing" i)
-    (cond (= 1 i) 1
-          (= 2 i) 1
-          :else (+ (fib (dec i)) (fib (dec (dec i))))))
 
-(def fibo (memoize fib))
-(def m-fib
-  (memoize (fn [n]
-             (condp = n
-               0 1
-               1 1
-               (+ (m-fib (dec n)) (m-fib (- n 2)))))))
+(defn parse-separated-numbers [s]
+  (as-> s tval
+    ( string/trim tval)
+    (string/split tval #"[^\d]+")
+    (map  read-string tval)))
 
+(defn parse-calibration-equation [s]
+  (let [
+    [test-value-string operands-string] (string/split s #": ")
+    test-value (read-string test-value-string)
+    operands (parse-separated-numbers operands-string)
+      ]
+;    (println "test-value"  test-value)
+;    (println "operands" operands)    
+    (vector test-value operands)
+))
+(defn xxx [test-value acc operands]
+  (cond (empty? operands) (= test-value acc)
+        :else (or (xxx test-value (+ acc (first operands)) (rest operands))
+            (xxx test-value (* acc (first operands)) (rest operands)))))
+
+        
+(defn calibration-equation-solvable? [[ test-value operands]]
+  (xxx test-value 0 operands)
+  
+  
+  )
 (defn day7_1 []
-  ;(can_be_satisfied? 21037 '(8 7 18 13))
-  (map  m-fib (range 1 50)))
+  (let [
+    ;lines (file-to-lines "resources/example_day7.txt")
+    lines (file-to-lines "resources/day7.txt")
+    equations (map parse-calibration-equation lines)
+    
+      ]
+  (println (count lines) " lines.")
+  (println "Max # of operands: "  (apply max  (map #(count (% 1) ) equations)))
+  (println "Min # of operands: "  (apply min  (map #(count (% 1) ) equations)))
+  (println    (filter calibration-equation-solvable? equations))
+  (apply +  (map #(% 0) (filter calibration-equation-solvable? equations)))
+  
+))
+  
 
 (def days {
   2 [day2_1 day2_2]
