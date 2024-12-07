@@ -274,10 +274,56 @@ absdiffs
  
 (defn day6_2 []
   (let [
-    lines (file-to-lines "resources/example_day6.txt")
-    initial-position (find-guard-position lines)]
-    (is-cyclic? initial-position :up lines [3 6])
+    lines (file-to-lines "resources/day6.txt")
+    initial-position (find-guard-position lines)
+    potential-obstacles (filter #(not (= initial-position %)) (for [ xo (range (count lines)) yo (range (count (lines 0)))] [xo yo]))
+    ]
+    (count (filter #(is-cyclic? initial-position :up lines %) potential-obstacles))
+    ;initial-position
+    ;(is-cyclic? initial-position :up lines [3 6])
   ))
+
+;; Day 7
+;; 21037: 9 7 18 13
+;; result: operand ...
+;; operators + and *
+;; evaluated left-to-right! (no precedence)
+;; 3 + 4 * 5 = 17
+;; lets start with silly recursion!
+;(defn can_be_satisfied? [result [operands] ]
+;  (let [  silly (fn  [acc remaining-operands] (
+;    (cond ( = result acc ) true
+;          ( > result acc ) false
+;          (empty? remaining-operands) false
+;          :else (let [next-operand (first remaining-operands) ]
+;             ( or (silly (+ acc next-operand) (rest remaining-operands))
+;                  (silly (* acc next-operand) (rest remaining-operands)))))))]
+;  (silly 0 operands)))
+(defn fib [i]
+  (println "fiboing" i)
+    (cond (= 1 i) 1
+          (= 2 i) 1
+          :else (+ (fib (dec i)) (fib (dec (dec i))))))
+
+(def fibo (memoize fib))
+(def m-fib
+  (memoize (fn [n]
+             (condp = n
+               0 1
+               1 1
+               (+ (m-fib (dec n)) (m-fib (- n 2)))))))
+
+(defn day7_1 []
+  ;(can_be_satisfied? 21037 '(8 7 18 13))
+  (map  m-fib (range 1 50)))
+
+(def days {
+  2 [day2_1 day2_2]
+  3 [day3_1 day3_2]
+  4 [day4_1 day4_2]
+  6 [day6_1 day6_2]
+  7 [day7_1]}
+)
 
 (defn all
   "Do all the things we have solutions for"
@@ -291,8 +337,17 @@ absdiffs
     (println (day4_1))
     (println (day4_2))
     (println (day6_1))
-    (println (day6_2))
+   ;commented due to slow (println (day6_2))
+    (println (day7_1))
 ))
+
+(defn single-day [data]
+  (let [day (:day data)]
+    (do
+      (println "Day " day)
+      (let [dayfns (days day)]
+        ;(println "Results:"  (map x dayfns))))))
+        (println "Results:"  (map #(apply % '()) dayfns))))))
 
 
  (defn -main

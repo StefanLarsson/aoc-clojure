@@ -5,6 +5,9 @@
   :run-x {:ns-default StefanLarsson.aoc
           :exec-fn greet
           :exec-args {:name "Clojure"}}
+  :run-single-day {:ns-default StefanLarsson.aoc
+          :exec-fn single-day
+          :exec-args {:day 3}}
   :build {:deps {io.github.clojure/tools.build
                  {:mvn/version "0.10.5"}}
           :ns-default build}
