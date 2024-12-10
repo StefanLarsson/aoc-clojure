@@ -2,6 +2,8 @@
 	(:require [
     clojure.string :as string ])
   (:require [ clojure.set :as set])
+  (:require [StefanLarsson.day2 :as day2])
+  (:require [StefanLarsson.utils :as utils])
   (:gen-class))
 
 (defn greet
@@ -9,17 +11,11 @@
   [data]
   (println (str "Hello, " (or (:name data) "World") "!")))
 
-(defn file-to-lines
-  "Read a file and split into lines"
-  [filename]
-  (->> filename
-    slurp
-    string/split-lines))
 
 ; Just copied from REPL
 (defn day1_2 []
 
-(def lines (file-to-lines "resources/day1.txt"))
+(def lines (utils/file-to-lines "resources/day1.txt"))
 (def lines-arrays (map #(string/split % #" +") lines))
 (def lines-int-arrays (map #(map read-string %) lines-arrays ))
 (def firsts (map first lines-int-arrays ))
@@ -35,63 +31,6 @@ absdiffs
 (filter #(.contains firsts-vector %) lasts)
 (println  (apply + (filter #(.contains firsts-vector %) lasts))))
 
-(defn line-to-report [s]
-  (map read-string (string/split s #" +")))
-
-
-(defn safe-diff? [d]
-  (let [absdiff (abs d)]
-    (and
-      (<= 1 absdiff)
-      (<= absdiff 3))))
-
-
-(defn safe-step? [l1 l2]
-;  (println l1 l2)
-  (let [absdiff (abs (- l1 l2))]
-  (and (<= 1 absdiff) (<= absdiff 3))))
-
-(defn report-safe-internal? [l1 l2 rls]
-  (if
-    (not (safe-step? l1 l2)) false
-    ( loop [diff (- l1 l2) l l2 ls rls]
- ;   (println diff l ls)
-      (cond
-        (not (safe-step? l (first ls))) false
-        (not (> (* diff (- l (first ls))) 0 )) false
-        (empty? (rest ls) ) true
-        :else (recur (- l (first ls)) (first ls) (rest ls)
-        
-          )))))
-
-    
-(defn report-safe?
-  [levels]
- ; (println levels)
-  (let [l1 (first levels) l2 (second levels) rls (rest (rest levels))]
-    (cond
-      (not l2) true ;; at most one level
-      (empty? rls) (safe-step? l1 l2) ;; exactly two leves
-      :else (report-safe-internal? l1 l2 rls))))
-
-(defn drop-nth [n seq] (loop [n n left '() x (first seq) xs (rest seq)] (cond (= 1 n) (concat left xs) (empty? xs) (concat left (list x)) :else  (recur (dec n) (concat left (list x)) (first xs) (rest xs)))))
-
-(defn dropped [seq] (map #(drop-nth % seq) (map inc (range (count seq)))))
-
-(defn day2_1 []
-  (let [lines (file-to-lines "resources/day2.txt")]
-    (->> lines
-      (map line-to-report )
-      (filter report-safe?)
-      count)))
-
-(defn day2_2 []
-  (let [lines (file-to-lines "resources/day2.txt")]
-    (->> lines
-      (map line-to-report )
-      (map #(conj ( dropped %) %))
-      (filter #(some report-safe? %))
-      count)))
 
 (defn day3_1 [] 
   (let [text (slurp "resources/day3.txt")
@@ -153,7 +92,7 @@ absdiffs
 
 (defn day4_1 [] 
   (let [
-    lines ( file-to-lines "resources/day4.txt")
+    lines ( utils/file-to-lines "resources/day4.txt")
     side (count lines)
     all-strings (map #(string-from-positions % lines) (all-lines side)) ; just assume square for now
     all-matches (map #(re-seq #"(?=(XMAS|SAMX))" %) all-strings)]
@@ -191,7 +130,7 @@ absdiffs
 ;; And then verify they are center's om MAS in both diagonals
 (defn day4_2 [] 
   (let [
-    lines ( file-to-lines "resources/day4.txt")
+    lines ( utils/file-to-lines "resources/day4.txt")
     side (count lines)
     a-positions (filter #(= \A ( char-at-pos ( % 0) (% 1) lines)) ( internal-positions side))]
     (count  (filter #(is-center-MS2 (% 0) (% 1) lines) a-positions))
@@ -256,7 +195,7 @@ absdiffs
 
 (defn day6_1 []
   (let [
-    lines (file-to-lines "resources/day6.txt")
+    lines (utils/file-to-lines "resources/day6.txt")
     initial-position (find-guard-position lines)]
     (count  (calculate-visited-positions initial-position :up lines))
   ))
@@ -276,7 +215,7 @@ absdiffs
  
 (defn day6_2 []
   (let [
-    lines (file-to-lines "resources/day6.txt")
+    lines (utils/file-to-lines "resources/day6.txt")
     initial-position (find-guard-position lines)
     potential-obstacles (filter #(not (= initial-position %)) (for [ xo (range (count lines)) yo (range (count (lines 0)))] [xo yo]))
     ]
@@ -351,8 +290,8 @@ absdiffs
 
 (defn day7_1 []
   (let [
-    ;lines (file-to-lines "resources/example_day7.txt")
-    lines (file-to-lines "resources/day7.txt")
+    ;lines (utils/file-to-lines "resources/example_day7.txt")
+    lines (utils/file-to-lines "resources/day7.txt")
     equations (map parse-calibration-equation lines)
     x (filter calibration-equation-solvable? equations) 
       ]
@@ -385,8 +324,8 @@ absdiffs
   )
 (defn day7_2 []
   (let [
-    ;lines (file-to-lines "resources/example_day7.txt")
-    lines (file-to-lines "resources/day7.txt")
+    ;lines (utils/file-to-lines "resources/example_day7.txt")
+    lines (utils/file-to-lines "resources/day7.txt")
     equations (map parse-calibration-equation lines)
     x (filter calibration-equation-solvable-2? equations) 
       ]
@@ -699,7 +638,7 @@ absdiffs
       )))))
       
     
-(defn xxx [topo-map]
+(defn xxxx [topo-map]
   (let [nines-with-1 (into {} (map #(vector % 1) (nines topo-map)))]
   (loop [current-value 9 multiplicities-map nines-with-1 ]
     ;(println "AAA" current-value multiplicities-map)
@@ -734,7 +673,7 @@ absdiffs
   (let [
     topo-map
     (-> "resources/day10.txt"
-      file-to-lines
+      utils/file-to-lines
       parse-topo-map
     )
     ;thething (xxx topo-map)
@@ -755,10 +694,10 @@ absdiffs
   (let [
     topo-map
     (-> "resources/day10.txt"
-      file-to-lines
+      utils/file-to-lines
       parse-topo-map
     )
-    thething (xxx topo-map)
+    thething (xxxx topo-map)
     ;thething (yyy topo-map)
   ]
   ;(println topo-map)
@@ -775,7 +714,7 @@ absdiffs
   (string/join (concat ["resources/"] (if (use-example) ["example_"] []) ["day"] [(str day) ".txt"])))
 
 (def days {
-  2 [day2_1 day2_2]
+  2 [day2/day2_1 day2/day2_2]
   3 [day3_1 day3_2]
   4 [day4_1 day4_2]
   6 [day6_1 day6_2]
