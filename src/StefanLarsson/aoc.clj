@@ -3,29 +3,12 @@
     clojure.string :as string ])
   (:require [ clojure.set :as set])
   (:require [StefanLarsson.utils :as utils])
+  (:require [StefanLarsson.day1 :as day1])
   (:require [StefanLarsson.day2 :as day2])
   (:require [StefanLarsson.day3 :as day3])
   (:require [StefanLarsson.day4 :as day4])
   (:gen-class))
 
-; Just copied from REPL
-(defn day1_2 []
-
-(def lines (utils/file-to-lines "resources/day1.txt"))
-(def lines-arrays (map #(string/split % #" +") lines))
-(def lines-int-arrays (map #(map read-string %) lines-arrays ))
-(def firsts (map first lines-int-arrays ))
-(def lasts (map last lines-int-arrays ))
-(def firsts-sorted (sort firsts))
-(def lasts-sorted (sort lasts))
- (def x (map vector firsts-sorted lasts-sorted ))
-(def diffs (map #(apply - %) x))
-(def absdiffs (map abs diffs))
-absdiffs
-(apply + absdiffs )
-(def firsts-vector (into [] firsts))
-(filter #(.contains firsts-vector %) lasts)
-(println  (apply + (filter #(.contains firsts-vector %) lasts))))
 
 
 ; guard position is marked by ^ (we assume he is pointing north always)
@@ -620,7 +603,7 @@ absdiffs
   "Do all the things we have solutions for"
   []
   (do
-    (day1_2)
+    (day1/day1_2)
     (dorun (for [day (keys days)]
       (do
         (println "Day " day "results:")
