@@ -1,5 +1,7 @@
 (ns StefanLarsson.aoc
-	(:require [clojure.string :as string])
+	(:require [
+    clojure.string :as string ])
+  (:require [ clojure.set :as set])
   (:gen-class))
 
 (defn greet
@@ -683,21 +685,90 @@ absdiffs
     nines-with-1 (into {} (map #(vector % 1) nines))
     eights (positions-at-height 8 topo-map)
     eights-with-neighbours (map #(vector % (neighbours % topo-map)) eights)]
-  (map #(vector % ( sum-of-neighbouring-multiplicities % topo-map nines-with-1)) eights)))
+  (into {} (map #(vector % ( sum-of-neighbouring-multiplicities % topo-map nines-with-1)) eights))))
+
+(defn show-map [topo-map multiplicities-map]
+  (doall (do
+    (println "++++++++++++++++++++++++++++++++")
+    (for [y (range (topo-map :h))]
+      (do
+        (doall (for [x (range (topo-map :w))]
+          (print (str "|" (or ( multiplicities-map [x y]) \.)) )))
+        (println "|")
+        (println "++++++++++++++++++++++++++++++++++")
+      )))))
+      
+    
+(defn xxx [topo-map]
+  (let [nines-with-1 (into {} (map #(vector % 1) (nines topo-map)))]
+  (loop [current-value 9 multiplicities-map nines-with-1 ]
+    ;(println "AAA" current-value multiplicities-map)
+    ;(println "current-value: " current-value)
+    ;(show-map topo-map multiplicities-map)
+    (if (= 0 current-value) multiplicities-map
+        (let
+          [ u (positions-at-height (dec current-value) topo-map)
+          v ( map #(vector % (sum-of-neighbouring-multiplicities % topo-map multiplicities-map)) u)]
+        (recur (dec current-value) (into {} v)))))))
+
+(defn yyy [topo-map]
+  (let [nines-with-selfmap (into {} (map #(vector % (set (vector %))) (nines topo-map)))
+      ]
+    nines-with-selfmap
+  (loop [current-value 9 reachable-nines-map nines-with-selfmap ]
+    ;(println "AAA" current-value reachable-nines-map)
+    ;(println "current-value: " current-value)
+    ;(show-map topo-map multiplicities-map)
+    (if (= 0 current-value) reachable-nines-map
+        (let
+          [ u (positions-at-height (dec current-value) topo-map)
+         ; v ( map #(vector % (sum-of-neighbouring-multiplicities % topo-map multiplicities-map)) u)
+          ;v (map #(vector % (map reachable-nines-map ( neighbours % topo-map))) u) 
+          v (map #(vector % (apply set/union (map reachable-nines-map ( neighbours % topo-map)))) u) 
+          ]
+        ;(println "CCC" u)
+        ;(println "BBB" v)
+        (recur (dec current-value) (into {} v)))))))
 
 (defn day10_1 []
   (let [
     topo-map
-    (-> "resources/example_day10.txt"
+    (-> "resources/day10.txt"
       file-to-lines
       parse-topo-map
     )
+    ;thething (xxx topo-map)
+    thething (yyy topo-map)
   ]
-  (println topo-map)
-  (println (eights-with-multiplicities topo-map))
+  ;(println topo-map)
   ;(println (into {} (map #(vector % 1) (nines topo-map))))
   ;(println (neighbours [0 0] topo-map)))
   
+  ;(println thething)  
+  ;(println (apply + ( vals thething)))
+  ;(apply + ( vals thething))
+  (apply + (map count ( vals thething)))
+))
+  
+
+(defn day10_2 []
+  (let [
+    topo-map
+    (-> "resources/day10.txt"
+      file-to-lines
+      parse-topo-map
+    )
+    thething (xxx topo-map)
+    ;thething (yyy topo-map)
+  ]
+  ;(println topo-map)
+  ;(println (into {} (map #(vector % 1) (nines topo-map))))
+  ;(println (neighbours [0 0] topo-map)))
+  
+  ;(println thething)  
+  ;(println (apply + ( vals thething)))
+  (apply + ( vals thething))
+  ;(apply + (map count ( vals thething)))
 ))
 
 (defn input-filename [day use-example]
@@ -711,7 +782,7 @@ absdiffs
   7 [day7_1 day7_2]
  ; 8 [day8_1 ]}
   9 [day9_1 day9_2 ]
-  10 [day10_1]
+  10 [day10_1 day10_2]
   }
 )
 
