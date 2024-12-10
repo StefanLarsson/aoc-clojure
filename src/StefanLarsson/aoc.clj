@@ -598,8 +598,11 @@ absdiffs
           (let [
             file (first candidate-move-files)
             file-length (file :length)
+            start-pos (file :start-pos)
             rest-files (rest candidate-move-files)
-            free-chunk (first (filter #(>= (% 1) file-length) free-chunks))]
+            free-chunk (first (filter #(and ( >= (% 1) file-length) (< (% 0) start-pos)) free-chunks))]
+            (do
+            (println file)
             (if free-chunk
               (recur
                 (assoc (dissoc free-chunks (free-chunk 0)) (+ file-length (free-chunk 0)) (- (free-chunk 1) file-length))
@@ -608,7 +611,7 @@ absdiffs
               (recur
                 free-chunks
                 rest-files
-                (conj handled-files file))))))))
+                (conj handled-files file)))))))))
 
 (defn checksum2-file [file]
   (let [
@@ -622,18 +625,67 @@ absdiffs
   (apply + (map checksum2-file  handled-files)))
 
 (defn day9_2 []
-  (let [input (slurp "resources/example_day9.txt")
-        ints (to-ints input)
-        thingy (something ints)]
-    
-    (defrag-moving-files thingy)
     (-> "resources/day9.txt"
       slurp
       to-ints
       something
       defrag-moving-files
-  ;    checksum2
-  )))
+      checksum2
+  ))
+;; Day 10 - Hoof It
+
+(defn parse-topo-map [lines]
+  (let [
+    h (count lines)
+    w (count (lines 0))
+  ]
+  { :w w :h h :lines lines}))
+
+(defn height-at [[x y] topo-map]
+  (let [
+    c (.charAt ((topo-map :lines) y) x)
+  ]
+  (read-string (str c))) 
+  )
+
+(defn nines [topo-map]
+  ;start easy: create a list of each position that has a 9
+  (filter #(= 9 (height-at % topo-map))
+    (for [
+      y (range (topo-map :h))
+      x (range (topo-map :w))
+    ]
+       [x y] 
+)))  
+
+(defn positions-at-height [h topo-map]
+  (filter #(= h (height-at % topo-map))
+    (for [
+      x (range (topo-map :w))
+      y (range (topo-map :h))]
+      [x y])))
+
+(defn eights-with-multiplicities [topo-map]
+  (let [
+    nines (nines topo-map)
+    nines-with-1 (into {} (map #(vector % 1) nines))]
+  
+  nines-with-1))
+
+(defn day10_1 []
+  (let [
+    topo-map
+    (-> "resources/example_day10.txt"
+      file-to-lines
+      parse-topo-map
+    )
+  ]
+  (println topo-map)
+  (println (height-at [1 0] topo-map))
+  (println (nines topo-map))
+  (println (eights-with-multiplicities topo-map))
+  (println (into {} (map #(vector % 1) (nines topo-map)))))
+)
 
 (defn input-filename [day use-example]
   (string/join (concat ["resources/"] (if (use-example) ["example_"] []) ["day"] [(str day) ".txt"])))
@@ -646,6 +698,7 @@ absdiffs
   7 [day7_1 day7_2]
  ; 8 [day8_1 ]}
   9 [day9_1 day9_2 ]
+  10 [day10_1]
   }
 )
 
