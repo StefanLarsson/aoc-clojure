@@ -141,7 +141,6 @@
             rest-files (rest candidate-move-files)
             free-chunk (first (filter #(and ( >= (% 1) file-length) (< (% 0) start-pos)) free-chunks))]
             (do
-            (println file)
             (if free-chunk
               (recur
                 (assoc (dissoc free-chunks (free-chunk 0)) (+ file-length (free-chunk 0)) (- (free-chunk 1) file-length))
