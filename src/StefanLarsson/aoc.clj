@@ -648,29 +648,42 @@ absdiffs
   (read-string (str c))) 
   )
 
-(defn nines [topo-map]
-  ;start easy: create a list of each position that has a 9
-  (filter #(= 9 (height-at % topo-map))
-    (for [
-      y (range (topo-map :h))
-      x (range (topo-map :w))
-    ]
-       [x y] 
-)))  
-
 (defn positions-at-height [h topo-map]
   (filter #(= h (height-at % topo-map))
     (for [
-      x (range (topo-map :w))
-      y (range (topo-map :h))]
+      y (range (topo-map :h))
+      x (range (topo-map :w))]
       [x y])))
 
+(defn nines [topo-map]
+  (positions-at-height 9 topo-map))
+
+
+(def topo-dirs [[-1 0] [1 0] [0 -1] [0 1]])
+
+(defn on-topo-map? [[x y] topo-map]
+  (and 
+    (< -1 x (topo-map :w))
+    (< -1 y (topo-map :h))))
+
+(defn neighbours [pos topo-map]
+  (let [
+    candidates (map #( apply vector %) (map #(map + pos %) topo-dirs))]
+  (filter #(on-topo-map? % topo-map) candidates)))
+
+(defn sum-of-neighbouring-multiplicities [ pos topo-map multiplicities-map]
+  (let [ n (neighbours pos topo-map)
+    multiplicities (filter identity (map multiplicities-map n))]
+    (apply + multiplicities)))
+
+  
 (defn eights-with-multiplicities [topo-map]
   (let [
     nines (nines topo-map)
-    nines-with-1 (into {} (map #(vector % 1) nines))]
-  
-  nines-with-1))
+    nines-with-1 (into {} (map #(vector % 1) nines))
+    eights (positions-at-height 8 topo-map)
+    eights-with-neighbours (map #(vector % (neighbours % topo-map)) eights)]
+  (map #(sum-of-neighbouring-multiplicities % topo-map nines-with-1) eights)))
 
 (defn day10_1 []
   (let [
@@ -681,11 +694,11 @@ absdiffs
     )
   ]
   (println topo-map)
-  (println (height-at [1 0] topo-map))
-  (println (nines topo-map))
   (println (eights-with-multiplicities topo-map))
-  (println (into {} (map #(vector % 1) (nines topo-map)))))
-)
+  ;(println (into {} (map #(vector % 1) (nines topo-map))))
+  ;(println (neighbours [0 0] topo-map)))
+  
+))
 
 (defn input-filename [day use-example]
   (string/join (concat ["resources/"] (if (use-example) ["example_"] []) ["day"] [(str day) ".txt"])))
