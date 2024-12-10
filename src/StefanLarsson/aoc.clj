@@ -2,8 +2,10 @@
 	(:require [
     clojure.string :as string ])
   (:require [ clojure.set :as set])
-  (:require [StefanLarsson.day2 :as day2])
   (:require [StefanLarsson.utils :as utils])
+  (:require [StefanLarsson.day2 :as day2])
+  (:require [StefanLarsson.day3 :as day3])
+  (:require [StefanLarsson.day4 :as day4])
   (:gen-class))
 
 (defn greet
@@ -31,111 +33,6 @@ absdiffs
 (filter #(.contains firsts-vector %) lasts)
 (println  (apply + (filter #(.contains firsts-vector %) lasts))))
 
-
-(defn day3_1 [] 
-  (let [text (slurp "resources/day3.txt")
-        matches (re-seq #"mul\((\d{1,3}),(\d{1,3})\)" text)]
-  (->>  matches
-    (map #(drop 1 %))
-    (map #(map read-string  %))
-    (map #( apply * %))
-    (apply +))))
-
-
-(defn f [state val]
-  (cond
-    (= (val 0) "do()") (assoc state :enabled true)
-    (= (val 0) "don't()") (assoc state :enabled false)
-    (state :enabled) (assoc state :sum (+ (state :sum) (* (read-string (val 1)) (read-string (val 2)))))
-    :else state))
-
-(defn day3_2 [] 
-  (let [text (slurp "resources/day3.txt")
-        matches (re-seq #"do\(\)|don't\(\)|mul\((\d{1,3}),(\d{1,3})\)" text)]
-(reduce f {:enabled true :sum 0 } matches)
-    ))
-
-(defn vertical-at-pos [pos side]
-  "Coordinates for vertical going down from (pos,0) to (pos, (side - 1))"
-  (map #(vector pos %) (range side)))
-;(defn vertical-at-pos [i ss]  (apply str (map #(.charAt (ss %) i)  (range (count ss)))))
-
-(defn diagonal-down-right-at-pos [pos side]
-  (let [
-    r (range side)]
-     (filter (fn [[x y]] (<= 0 x (dec side)) ) (map #(vector (+ pos %) %) r))))
-
-(defn diagonal-down-left-at-pos [pos side]
-  (let [
-    r (range side)]
-     (filter (fn [[x y]] (<= 0 x (dec side)) ) (map #(vector (- pos %) %) r))))
-
-(defn horizontal-at-pos [pos side]
-  (map #(vector % pos) (range side)))
-
-(defn all-lines [side]
-  (let [
-    r1 (range side)
-    horizontals (map #(horizontal-at-pos % side) r1)
-    verticals (map #(vertical-at-pos % side) r1)
-    r2 (range (- (* 2 side) 1))
-    diagonals-left (map #(diagonal-down-left-at-pos % side) r2)
-    r3 (range (-  1 side) side)
-    diagonals-right (map #(diagonal-down-right-at-pos % side) r3)]
-    (concat horizontals verticals diagonals-left diagonals-right)))
-
-(defn char-at-pos [x y ss]
-  (.charAt (ss y) x) )
-
-(defn string-from-positions [poss ss]
-  (apply str  (map #(char-at-pos (% 0) (% 1) ss) poss)))
-
-(defn day4_1 [] 
-  (let [
-    lines ( utils/file-to-lines "resources/day4.txt")
-    side (count lines)
-    all-strings (map #(string-from-positions % lines) (all-lines side)) ; just assume square for now
-    all-matches (map #(re-seq #"(?=(XMAS|SAMX))" %) all-strings)]
-    (apply +  (map #(count (re-seq #"(?=(XMAS|SAMX))" %) ) all-strings))
-))
-
-(defn internal-positions [side]
-  (for [i (range 1 (- side 1))
-        j (range 1 (- side 1))]
-      (vector i j)))
-
-(defn is-center-MS2 [ x y ss]
-  (and 
-  (or 
-    (and  (= \M (char-at-pos (- x 1) (- y 1) ss)) (= \S (char-at-pos (+ x 1) (+ y 1) ss)  ))
-    (and  (= \S (char-at-pos (- x 1) (- y 1) ss)) (= \M (char-at-pos (+ x 1) (+ y 1) ss)  )))
-  (or 
-    (and  (= \M (char-at-pos (- x 1) (+ y 1) ss)) (= \S (char-at-pos (+ x 1) (- y 1) ss)  ))
-    (and  (= \S (char-at-pos (- x 1) (+ y 1) ss)) (= \M (char-at-pos (+ x 1) (- y 1) ss)  )))))
-
-(defn is-center-MS [x y ss]
-  (and
-    (or
-      (and (= \M (char-at-pos (- x 1) (- y 1) ss) (= \S (char-at-pos (+ 1 x) (+ 1 y) ss))))
-      (and (= \S (char-at-pos (- x 1) (- y 1) ss) (= \M (char-at-pos (+ 1 x) (+ 1 y) ss))))
-    )
-    ;(or
-    ;  (and (= \M (char-at-pos (- x 1) (+ y 1) ss) (= \S (char-at-pos (+ 1 x) (- 1 y) ss))))
-    ;  (and (= \S (char-at-pos (- x 1) (+ y 1) ss) (= \M (char-at-pos (+ 1 x) (- 1 y) ss))))
-    ;i)
-))
-;; Find X-MAS:
-;; The X-MASes correspond to the A:s in their centres.
-;; We can find all the positions of A:s
-;; And then verify they are center's om MAS in both diagonals
-(defn day4_2 [] 
-  (let [
-    lines ( utils/file-to-lines "resources/day4.txt")
-    side (count lines)
-    a-positions (filter #(= \A ( char-at-pos ( % 0) (% 1) lines)) ( internal-positions side))]
-    (count  (filter #(is-center-MS2 (% 0) (% 1) lines) a-positions))
-    ;a-positions
-))
 
 ; guard position is marked by ^ (we assume he is pointing north always)
 (defn guard-coordinate-if-found [index line]
@@ -715,8 +612,8 @@ absdiffs
 
 (def days {
   2 [day2/day2_1 day2/day2_2]
-  3 [day3_1 day3_2]
-  4 [day4_1 day4_2]
+  3 [day3/day3_1 day3/day3_2]
+  4 [day4/day4_1 day4/day4_2]
   6 [day6_1 day6_2]
   7 [day7_1 day7_2]
  ; 8 [day8_1 ]}
