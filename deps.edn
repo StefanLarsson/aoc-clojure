@@ -2,9 +2,6 @@
  :deps {org.clojure/clojure {:mvn/version "1.12.0"}}
  :aliases
  {:run-m {:main-opts ["-m" "StefanLarsson.aoc"]}
-  :run-x {:ns-default StefanLarsson.aoc
-          :exec-fn greet
-          :exec-args {:name "Clojure"}}
   :run-single-day {:ns-default StefanLarsson.aoc
           :exec-fn single-day
           :exec-args {:day 3}}

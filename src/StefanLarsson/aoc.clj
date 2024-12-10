@@ -8,12 +8,6 @@
   (:require [StefanLarsson.day4 :as day4])
   (:gen-class))
 
-(defn greet
-  "Callable entry point to the application."
-  [data]
-  (println (str "Hello, " (or (:name data) "World") "!")))
-
-
 ; Just copied from REPL
 (defn day1_2 []
 
