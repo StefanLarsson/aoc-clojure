@@ -683,7 +683,7 @@ absdiffs
     nines-with-1 (into {} (map #(vector % 1) nines))
     eights (positions-at-height 8 topo-map)
     eights-with-neighbours (map #(vector % (neighbours % topo-map)) eights)]
-  (map #(sum-of-neighbouring-multiplicities % topo-map nines-with-1) eights)))
+  (map #(vector % ( sum-of-neighbouring-multiplicities % topo-map nines-with-1)) eights)))
 
 (defn day10_1 []
   (let [
