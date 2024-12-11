@@ -2,10 +2,6 @@
   (:require [clojure.string :as string])
   (:require [StefanLarsson.utils :as utils]))
 
-(defn line-to-report [s]
-  (map read-string (string/split s #" +")))
-
-
 (defn safe-diff? [d]
   (let [absdiff (abs d)]
     (and
@@ -44,6 +40,9 @@
 (defn drop-nth [n seq] (loop [n n left '() x (first seq) xs (rest seq)] (cond (= 1 n) (concat left xs) (empty? xs) (concat left (list x)) :else  (recur (dec n) (concat left (list x)) (first xs) (rest xs)))))
 
 (defn dropped [seq] (map #(drop-nth % seq) (map inc (range (count seq)))))
+
+(defn line-to-report [s]
+  (map parse-long (string/split s #" +")))
 
 (defn day2_1 []
   (let [lines (utils/file-to-lines "resources/day2.txt")]
