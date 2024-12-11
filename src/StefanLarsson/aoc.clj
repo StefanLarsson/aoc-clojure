@@ -12,6 +12,7 @@
   (:require [StefanLarsson.day8 :as day8])
   (:require [StefanLarsson.day9 :as day9])
   (:require [StefanLarsson.day10 :as day10])
+  (:require [StefanLarsson.day11 :as day11])
   (:gen-class))
 
 
@@ -27,6 +28,7 @@
  ; 8 [day8/day8_1 ]}
   9 [day9/day9_1 day9/day9_2 ]
   10 [day10/day10_1 day10/day10_2]
+  11 [day11/day11_1 day11/day11_2]
   }
 )
 
