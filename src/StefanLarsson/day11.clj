@@ -34,8 +34,6 @@
     i 0]
 
     (do
-      (println i)
-
     (if (= n i) state
         (recur (step-state state) (inc i)))))
 )
@@ -52,18 +50,24 @@
 ))
 
 
-(defn num-stones-after-steps [value steps]
-  (if (> steps 30) ( println (str  "calculating a value for " steps" steps")))
-  (if (= 0 (mod steps 10 ) ) ( println (str  "calculating a value for " steps" steps")))
-  (if
+(defn determine-number [value]
+  (let [string-value (str value)]
+    (if (= 0 (mod (count string-value) 2)) 2
+      1
+)))
+(def num-stones-after-steps 
+  (memoize (fn [value steps]
+  ;(if (> steps -1) ( println (str  "calculating a value for " steps" steps: " value)))
+  (cond
     (= 0 steps) 1
-    (apply + (map #( num-stones-after-steps  % (dec steps)) (transform-stone value)))
+     (= 1 steps) (determine-number value) 
+    :else (apply + (map #( num-stones-after-steps  % (dec steps)) (transform-stone value)))
      
-))
+))))
 
 (def memo-nsas (memoize num-stones-after-steps))
 
 (defn day11_2 []
-  (apply + (map #(memo-nsas % 75) input)
+  (apply + (map #(num-stones-after-steps % 75) input)
   ))
 
