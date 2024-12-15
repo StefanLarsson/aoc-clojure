@@ -45,16 +45,14 @@
   (map parse-long (string/split s #" +")))
 
 (defn day2_1 []
-  (let [lines (utils/file-to-lines "resources/day2.txt")]
-    (->> lines
-      (map line-to-report )
-      (filter report-safe?)
-      count)))
+  (->> "resources/day2.txt"
+    (utils/parse-file line-to-report)
+    (filter report-safe?)
+    count))
 
 (defn day2_2 []
-  (let [lines (utils/file-to-lines "resources/day2.txt")]
-    (->> lines
-      (map line-to-report )
-      (map #(conj ( dropped %) %))
-      (filter #(some report-safe? %))
-      count)))
+  (->> "resources/day2.txt"
+    (utils/parse-file line-to-report)
+    (map #(conj (dropped %) %))
+    (filter #(some report-safe? %))
+    count))
