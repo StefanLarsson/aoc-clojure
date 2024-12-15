@@ -69,25 +69,12 @@
 
 (defn day7_1 []
   (let [
-    ;lines (utils/file-to-lines "resources/example_day7.txt")
-    lines (utils/file-to-lines "resources/day7.txt")
-    equations (map parse-calibration-equation lines)
-    x (filter calibration-equation-solvable? equations) 
+    equations (utils/parse-file parse-calibration-equation "resources/day7.txt")
       ]
-  ;(println ( calibration-equation-solution [16931 [ 568 2 9 16 529 1 8 1 3 8]]))
-  ;(println (count lines) " lines.")
-  ;(println "Max # of operands: "  (apply max  (map #(count (% 1) ) equations)))
-  ;(println "Min # of operands: "  (apply min  (map #(count (% 1) ) equations)))
-  ;(println    (filter calibration-equation-solvable? equations))
-  ;(println (map #(% 0)   (filter calibration-equation-solvable? equations)))
-  ;(for [[result operands] (filter calibration-equation-solvable? equations)]
-  ;  (do  (println result)))
-
-  ;(println (reduce #(str %1 "\n" %2)   (map #(str (% 0)) x)))
-
-  (apply +  (map #(% 0) (filter calibration-equation-solvable? equations)))
-  
-))
+  (->> equations
+    (filter calibration-equation-solvable?)
+    (map #(% 0))
+    (apply +))))
 
 (defn || [x y] (read-string (str x y)))
 
@@ -98,28 +85,18 @@
           (zzz test-value (* acc (first operands)) (rest operands))
           (zzz test-value (|| acc (first operands)) (rest operands))
 )))
+
 (defn calibration-equation-solvable-2? [[ test-value operands]]
   (zzz test-value (first operands) (rest  operands))
   )
+
 (defn day7_2 []
   (let [
-    ;lines (utils/file-to-lines "resources/example_day7.txt")
-    lines (utils/file-to-lines "resources/day7.txt")
-    equations (map parse-calibration-equation lines)
-    x (filter calibration-equation-solvable-2? equations) 
+    equations (utils/parse-file parse-calibration-equation "resources/day7.txt" )
       ]
-  ;(println ( calibration-equation-solution [16931 [ 568 2 9 16 529 1 8 1 3 8]]))
-  ;(println (count lines) " lines.")
-  ;(println "Max # of operands: "  (apply max  (map #(count (% 1) ) equations)))
-  ;(println "Min # of operands: "  (apply min  (map #(count (% 1) ) equations)))
-  ;(println    (filter calibration-equation-solvable? equations))
-  ;(println (map #(% 0)   (filter calibration-equation-solvable? equations)))
-  ;(for [[result operands] (filter calibration-equation-solvable? equations)]
-  ;  (do  (println result)))
 
-  ;(println (reduce #(str %1 "\n" %2)   (map #(str (% 0)) x)))
-
-  (apply +  (map #(% 0) (filter calibration-equation-solvable-2? equations)))
-  
-))
+  (->> equations
+    (filter calibration-equation-solvable-2?)
+    (map #(% 0))
+    (apply +))))
 
