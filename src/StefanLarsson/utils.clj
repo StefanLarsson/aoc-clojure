@@ -83,3 +83,18 @@
     slurp
     (string/split-lines)
     (map f)))
+
+
+(defn split-on-empty-lines [s]
+  (string/split s #"\n\n"))
+
+(defn parse-integers-split-on-anything [s]
+  (map read-string (string/split s #"[^\d]+")))
+
+(defn  slurp-and-parse-by-sections[fname parsers]
+  (->> fname
+    slurp
+    split-on-empty-lines
+    (map string/split-lines)
+    (map #(map %1 %2)  parsers)
+    ))

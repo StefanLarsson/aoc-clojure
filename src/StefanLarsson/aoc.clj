@@ -7,6 +7,7 @@
   (:require [StefanLarsson.day2 :as day2])
   (:require [StefanLarsson.day3 :as day3])
   (:require [StefanLarsson.day4 :as day4])
+  (:require [StefanLarsson.day5 :as day5])
   (:require [StefanLarsson.day6 :as day6])
   (:require [StefanLarsson.day7 :as day7])
   (:require [StefanLarsson.day8 :as day8])
@@ -14,6 +15,7 @@
   (:require [StefanLarsson.day10 :as day10])
   (:require [StefanLarsson.day11 :as day11])
   (:require [StefanLarsson.day14 :as day14])
+;  (:require [StefanLarsson.day16 :as day16])
   (:gen-class))
 
 
@@ -24,13 +26,14 @@
   2 [day2/day2_1 day2/day2_2]
   3 [day3/day3_1 day3/day3_2]
   4 [day4/day4_1 day4/day4_2]
+  5 [day5/day5_1 day5/day5_2]
   6 [day6/day6_1 day6/day6_2]
   7 [day7/day7_1 day7/day7_2]
  ; 8 [day8/day8_1 ]}
   9 [day9/day9_1 day9/day9_2 ]
   10 [day10/day10_1 day10/day10_2]
   11 [day11/day11_1 day11/day11_2]
-  14 [day14/part2]
+;  16 [day16/part1]
   }
 )
 
@@ -39,7 +42,7 @@
   []
   (do
     (day1/day1_2)
-    (dorun (for [day (keys days)]
+    ( dorun (for [day (keys days)]
       (do
         (println "Day " day "results:")
         (dorun (for [function (days day)]
