@@ -39,14 +39,14 @@
   (sum-middle-page-correctly-ordered "resources/day5.txt"))
 
 (defn is-branch? [initial remaining rules]
-  ;(println "b: " initial remaining)
+  (println "b: " initial remaining)
   (let [
     allowed-nexts (filter #(page-allowed-rules? % initial rules) remaining)
     ]
     (not (empty? allowed-nexts))))
 
 (defn children [initial remaining rules]
-  (println "c: " initial remaining)
+;  (println "c: " initial remaining)
   (let [
     allowed-nexts (filter #(page-allowed-rules? % initial rules) remaining)]
     (map #(vector (conj initial %) (disj remaining %)) allowed-nexts)))
@@ -57,8 +57,24 @@
     #(children (first %) (second %) rules)
     ['() (into #{} update)]))
 
-(defn find-correct-order [update rules]
-  (first  (first (filter #(empty? (second %)) (xxx update rules) ))))
+(defn can-be-first-by-rule? [page pages rule]
+  (every? #(allowed-page-pair? page % rule) pages))
+
+(defn can-be-first? [page pages rules]
+  (every? #(can-be-first-by-rule? page pages %) rules))
+
+(defn candidate-first [pages rules]
+  (first (filter #(can-be-first? % pages rules) pages)))
+
+(defn find-correct-order [pages rules]
+  (loop [result [] remaining (into #{} pages)]
+    (if
+      (empty? remaining)
+      result
+      (let [ next (candidate-first remaining rules)]
+        (recur (conj result next) (disj remaining next))
+        )
+      )))
 
 (defn sum-middle-page-reordered-incorrect [fname]
   (let [[rules updates & scrap] (utils/slurp-and-parse-by-sections fname [parse-ordering-rule utils/parse-integers-split-on-anything])]
@@ -68,5 +84,7 @@
       (map middle)
       (apply +)
     )))
+
 (defn day5_2 []
+  (sum-middle-page-reordered-incorrect "resources/day5.txt")
 )
